@@ -1,0 +1,12 @@
+version: v2
+name: buf.build/bufbuild/bufstream
+deps:
+  - buf.build/bufbuild/protovalidate
+lint:
+  use:
+    - STANDARD
+    - UNARY_RPC
+  disallow_comment_ignores: true
+breaking:
+  use:
+    - WIRE_JSON

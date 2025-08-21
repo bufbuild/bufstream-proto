@@ -1,0 +1,63 @@
+// Copyright 2025 Buf Technologies, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package buf.bufstream.dlq.v1beta1;
+
+import "buf/bufstream/dlq/v1beta1/record_header.proto";
+import "buf/validate/validate.proto";
+import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "buf.build/gen/go/bufbuild/bufstream/protocolbuffers/go/buf/bufstream/dlq/v1beta1";
+
+// A record that was sent to a dead-letter queue.
+message Record {
+  // The ID of the topic where the record was sent.
+  //
+  // Topic IDs were introduced in KIP-516.
+  string topic_id = 1 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.uuid = true
+  ];
+  // The name of the topic where the record was sent.
+  string topic_name = 2 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 249,
+    (buf.validate.field).string.pattern = "^[a-zA-Z0-9._-]*$"
+  ];
+  // The number of the partition within the topic where the record was sent.
+  //
+  // This will be between 0 and (num_partitions - 1) for that topic.
+  int32 partition = 3 [(buf.validate.field).int32.gte = 0];
+  // The key for the record as sent to the topic.
+  //
+  // Record keys are optional in Kafka, and differentiate between empty and unset.
+  // For non-compact topics, record keys are optional.
+  // For compact topics, record keys are required, however the key may
+  // be empty while satisfying the requirement.
+  optional bytes key = 4;
+  // The value for the record as sent to the topic.
+  //
+  // For compact topics, record values are optional. A nil Record value represents
+  // a delete, and an empty record value represents an empty value for the given key.
+  optional bytes value = 5;
+  // The time at which the record should be considered to be produced to the topic.
+  google.protobuf.Timestamp timestamp = 6 [(buf.validate.field).required = true];
+  // Any headers that were part of the record as sent to the topic.
+  repeated RecordHeader headers = 7;
+  // The errors that resulted in the record being added to the dead-letter queue.
+  repeated google.protobuf.Any errors = 8 [(buf.validate.field).repeated.min_items = 1];
+}
