@@ -59,5 +59,11 @@ message Record {
   // Any headers that were part of the record as sent to the topic.
   repeated RecordHeader headers = 7;
   // The errors that resulted in the record being added to the dead-letter queue.
-  repeated google.protobuf.Any errors = 8 [(buf.validate.field).repeated.min_items = 1];
+  repeated Error errors = 8 [(buf.validate.field).repeated.min_items = 1];
+}
+
+// An error that resulted in the record being added to the dead-letter queue.
+message Error {
+  string message = 1 [(buf.validate.field).required = true];
+  google.protobuf.Any details = 2;
 }
