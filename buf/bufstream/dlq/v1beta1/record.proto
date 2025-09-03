@@ -16,9 +16,9 @@ syntax = "proto3";
 
 package buf.bufstream.dlq.v1beta1;
 
+import "buf/bufstream/dlq/v1beta1/error.proto";
 import "buf/bufstream/dlq/v1beta1/record_header.proto";
 import "buf/validate/validate.proto";
-import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
 
 option go_package = "buf.build/gen/go/bufbuild/bufstream/protocolbuffers/go/buf/bufstream/dlq/v1beta1";
@@ -60,10 +60,4 @@ message Record {
   repeated RecordHeader headers = 7;
   // The errors that resulted in the record being added to the dead-letter queue.
   repeated Error errors = 8 [(buf.validate.field).repeated.min_items = 1];
-}
-
-// An error that resulted in the record being added to the dead-letter queue.
-message Error {
-  string message = 1 [(buf.validate.field).required = true];
-  google.protobuf.Any details = 2;
 }
